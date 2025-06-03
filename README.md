@@ -62,3 +62,5 @@ curl --location 'https://{BaseURL}/Keyfactorapi/JobTypes/Custom' \
   ]
 }'
 ````
+
+#### 2 - Install the `Sample Custom Job Type`
