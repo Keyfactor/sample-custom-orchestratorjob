@@ -1,114 +1,64 @@
-# cpr-orchestrator-template
+## Overview
 
-## Template for new (Universal) Orchestrator integrations
+The Keyfactor Command platform allows for the creation of custom orchestrator extensions known as Custom Job Types.  These custom extensions allow the user to create code that can run on a Keyfactor Universal Orchestrator server and make use of the Keyfactor Command job scheduling architecture without being tied to specific capabilities such as Inventory and Management that are built into "normal" orchestrator extensions that are widely available on the GitHub platform.  Also, Custom Job Types have the advantage of not requiring the creation of a Keyfactor Command Certificate Store Type and one or more Keyfactor Command Certificate Stores.
 
-### Use this repository to create new integrations for new universal orchestrator integration types. 
+Custom Job Types can be created with:
+- one to many input parameters of type string, int, DateTime, and bool
+- custom processing logic not tied to any particular function
+- the ability to pass data back to Keyfactor Command for it to be persisted and accessible via an endpoint call
 
-
-1. [Use this repository](#using-the-repository)
-1. [Update the integration-manifest.json](#updating-the-integration-manifest.json)
-1. [Add Keyfactor Bootstrap Workflow (keyfactor-bootstrap-workflow.yml)](#add-bootstrap)
-1. [Create required branches](#create-required-branches)
-1. [Replace template files/folders](#replace-template-files-and-folders)
-1. [Create initial prerelease](#create-initial-prerelease)
----
-
-#### Using the repository
-1. Select the ```Use this template``` button at the top of this page
-1. Update the repository name following [these guidelines](https://keyfactorinc.sharepoint.com/sites/IntegrationWiki/SitePages/GitHub-Processes.aspx#repository-naming-conventions) 
-    1. All repositories must be in lower-case
-	1. General pattern: company-product-type
-	1. e.g. hashicorp-vault-orchestator
-1. Click the ```Create repository``` button
-
----
-
-#### Updating the integration-manifest.json
-
-*The following properties must be updated in the [integration-manifest.json](./integration-manifest.json)*
-
-Clone the repository locally, use vsdev.io, or the GitHub online editor to update the file.
-
-* "name": "Friendly name for the integration"
-	* This will be used in the readme file generation and catalog entries
-* "description": "Brief description of the integration."
-	* This will be used in the readme file generation
-	* If the repository description is empty this value will be used for the repository description upon creating a release branch
-* "release_dir": "PATH\\\TO\\\BINARY\\\RELEASE\\\OUTPUT\\\FOLDER"
-	* Path separators can be "\\\\" or "/"
-	* Be sure to specify the release folder name. This can be found by running a Release build and noting the output folder
-	* Example: "AzureAppGatewayOrchestrator\\bin\\Release"
-* "about.orchestrator.platform_UOFramework": "10.1" 
-	* Universal Orchestrator Framework version required
-* "about.orchestrator.keyfactor_platform_support": "9.10"
-	* Command platform version required
-* "about.orchestrator.pam_support": false
-	* If the orchestrator supports PAM change this value to true 
-
-For each platform (win and linux) define which capabilities are present for this orchestrator extension. You must update the boolean properties for both win and linux platforms.
-
-* "supportsCreateStore"
-* "supportsDiscovery"
-* "supportsManagementAdd"
-* "supportsManagementRemove"
-* "supportsReenrollment"
-* "supportsInventory"
-
-### Cert Store Definitions
-
-The integration-manifest.json contains cert-store definitions for use with [kfutil](https://github.com/keyfactor/kfutil).
-
-Instructions for creating the store type entries can be found on the [kfutil Orchestrator Store Type Integration page on Confluence](https://keyfactor.atlassian.net/wiki/x/SoBVBQ)
-
----
-
-#### Add Bootstrap 
-Add Keyfactor Bootstrap Workflow (keyfactor-bootstrap-workflow.yml). This can be copied directly from the workflow templates or through the Actions tab
-* Directly:
-    1. Create a file named ```.github\workflows\keyfactor-bootstrap-workflow.yml``` 
-	1. Copy the contents of [keyfactor/.github/workflow-templates/keyfactor-bootstrap-workflow.yml](https://raw.githubusercontent.com/Keyfactor/.github/main/workflow-templates/keyfactor-bootstrap-workflow.yml) into the file created in the previous step
-* Actions tab:
-    1. Navigate to the [Actions tab](./actions) in the new repository
-	1. Click the ```New workflow``` button
-	1. Find the ```Keyfactor Bootstrap Workflow``` and click the ```Configure``` button
-	1. Click the ```Commit changes...``` button on this screen and the next to add the bootstrap workflow to the main branch
-	
-A new build will run the tasks of a *Push* trigger on the main branch
-
-*Ensure there are no errors during the workflow run in the Actions tab.*
-
----
-
-#### Create required branches 
-1. Create a release branch from main: release-1.0
-1. Create a dev branch from the starting with the devops id in the format ab#\<DevOps-ID>, e.g. ab#53535. 
-    1. For the cleanest pull request merge, create the dev branch from the release branch. 
-	1. Optionally, add a suffix to the branch name indicating initial release. e.g. ab#53535-initial-release
-
----
+Typical use cases of a Custom Job Type:
+- Follow up processing that needs to be performed based on the successful (or unsuccessful) completion of a separate Orchestrator Extension job.  Perhaps a server needs to be reobooted after a Management-Add job runs to renew a certificate.  If this tasks needs to run from a Universal Orchestratore located behind a firewall, a [Keyfactor Command Completion Handler](https://github.com/Keyfactor/keyfactor-sample-jobcompletionhandler) could be set up to schedule a custom job that could perform this task.
+- A hosted workflow is run and needs a step to execute a command on a server behind the customer's firewall.  The workflow could call the API endpoint to schedule (see below) a custom job that would then run on a Universal Orchestrator inside the client's firewall.
 
 
-#### Replace template files and folders
-1. Replace the contents of readme_source.md
-1. Create a CHANGELOG.md file in the root of the repository indicating ```1.0: Initial release```
-1. Replace the SampleOrchestratorExtension.sln solution file and SampleOrchestratorExtension folder with your new orchestrator dotnet solution
-1. Push your updates to the dev branch (ab#xxxxx)
-
----
+The Custom Job Type Extension in this repository defines 4 input parameters, one of each allowed type: string, int, DateTime, and bool.  The extension then writes the values out to the orchestrator log and returns a concatenated string value of all 4 inputs.  The returned value is persisted in the Keyfactor Command database and can be accessed via API endpoint (see below).
 
 
-#### Create initial prerelease
-1. Create a pull request from the dev branch to the release-1.0 branch
+## Getting Started
 
+To use this sample you will need:
+- An understanding of the Keyfactor Command platform, API endpoints, orchestrators and orchestrator extensions
+- An understanding of C# and .NET development
+- A working Keyfactor Command instance and administrative access to the server it is running on
+- An installed, configured, and approved Universal Orchestrator Framework instance
+- Visual Studio (or other development environment that can build a .NET C# assembly)
 
-----
-
-When the repository is ready for SE Demo, change the following property:
-* "status": "pilot"
-
-When the integration has been approved by Support and Delivery teams, change the following property:
-* "status": "production"
-
-If the repository is ready to be published in the public catalog, the following properties must be updated:
-* "update_catalog": true
-* "link_github": true
+#### 1 - Create the `Sample Custom Job Type` job type used in this example by calling the `[POST] /JobTypes/Custom endpoint
+````
+curl --location 'https://{BaseURL}/Keyfactorapi/JobTypes/Custom' \
+--header 'X-Keyfactor-Requested-With: APIClient' \
+--header 'x-keyfactor-api-version: 1.0' \
+--header 'Content-Type: application/json' \
+--header 'Authorization: Basic {Base64 encoded credentials}' \
+--data '{
+  "JobTypeName": "SampleCustomJobType",
+  "Description": "Sample Custom JobType",
+  "JobTypeFields": [
+    {
+      "Name": "ParamString",
+      "Type": 1,
+      "DefaultValue": "Hello",
+      "Required": true
+    },
+    {
+      "Name": "ParamInt",
+      "Type": 2,
+      "DefaultValue": 1,
+      "Required": true
+    }, 
+    {
+      "Name": "ParamDate",
+      "Type": 3,
+      "DefaultValue": "2025-01-01",
+      "Required": true
+    }, 
+    {
+      "Name": "ParamBool",
+      "Type": 4,
+      "DefaultValue": true,
+      "Required": true
+    }
+  ]
+}'
+````
