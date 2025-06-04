@@ -85,7 +85,7 @@ In the response, find the agent (orchestrator) you installed the custom job type
 
 
 #### 4 - Schedule a job for your `Sample Custom Job Type` extension
-````
+<pre>
 curl --location 'https://<b><i>{BaseURL}</b></i>/Keyfactorapi/OrchestratorJobs/Custom' \
 --header 'X-Keyfactor-Requested-With: APIClient' \
 --header 'x-keyfactor-api-version: 1.0' \
@@ -102,9 +102,9 @@ curl --location 'https://<b><i>{BaseURL}</b></i>/Keyfactorapi/OrchestratorJobs/C
     "ParamInt": 1,
     "ParamDate": "2025-01-01T08:10:55",
     "ParamBool": true
-  }
- }'
- ````
+ }
+}'
+</pre>
 
  Modify the JobField values above as desired.  These will be the inputs into your scheduled job.  The example above schedules the job to run immediately, but this can be altered to run at various intervals.  Please reference the Keyfactor Command API documentation for more details.
 
