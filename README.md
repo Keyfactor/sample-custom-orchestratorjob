@@ -86,7 +86,7 @@ In the response, find the agent (orchestrator) you installed the custom job type
 
 #### 4 - Schedule a job for your `Sample Custom Job Type` extension
 ````
-curl --location 'https://***{BaseURL}***/Keyfactorapi/OrchestratorJobs/Custom' \
+curl --location 'https://<b><i>{BaseURL}</b></i>/Keyfactorapi/OrchestratorJobs/Custom' \
 --header 'X-Keyfactor-Requested-With: APIClient' \
 --header 'x-keyfactor-api-version: 1.0' \
 --header 'Content-Type: application/json' \
@@ -111,4 +111,11 @@ curl --location 'https://***{BaseURL}***/Keyfactorapi/OrchestratorJobs/Custom' \
  Once the job is scheduled, you can navigate in Keyfactor Command to `Orchestrators => Jobs` to view the status of the job.  Once it runs, you should be able to see the 4 values you passed in the Orchestrator log located on the Keyfactor Universal Orchestrator server at `{UO installation path}/logs/log.txt`.  Also, the passed in values will be persisted in the Keyfactor Command database, accessible via the API call in step 5.
 
 
- #### 5 - Retrieve the 
+ #### 5 - Retrieve the data passed back from the `Sample Custom Job Type` job
+ ````
+ curl --location 'https://***{BaseURL}***/Keyfactorapi/OrchestratorJobs/JobStatus/Data?jobHistoryId=124163' \
+--header 'X-Keyfactor-Requested-With: APIClient' \
+--header 'x-keyfactor-api-version: 1.0' \
+--header 'Authorization: Basic Y29tbWFuZFxrZmFkbWluOkF0bEBudDFz' \
+--data ''
+````
