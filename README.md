@@ -67,7 +67,6 @@ curl --location 'https://<b><i>{BaseURL}</b></i>/Keyfactorapi/JobTypes/Custom' \
 Follow these steps to install and register the `Sample Custom Job Type` custom extension:
 - Stop the Keyfactor Universal Orchestrator service on the Universal Orchestrator server on which you plan on installing this extension
 - Download the source code of this sample custom job type extension, and compile using Microsoft Visual Studio or equivalent.
-- Compile the source code
 - Copy the binaries created from the compilation into {Keyfactor Unviversal Orchestartor installation path}/extensions/{folder name you create}.
 - Restart the Universal Orchestrator service
 - In Keyfactor Command, navigate to `Orchestrators => Management`.  You should see the status of the Universal Orchestrator you are attempting to install the extension on changed to "New".  You should also see a new `SampleCustomJobType` capability appear under Capabilities.
