@@ -25,12 +25,12 @@ To use this sample you will need:
 - Visual Studio (or other development environment that can build a .NET C# assembly)
 
 #### 1 - Create the `Sample Custom Job Type` job type used in this example by calling the `[POST] /JobTypes/Custom` endpoint
-````
-curl --location 'https://***{BaseURL}***/Keyfactorapi/JobTypes/Custom' \
+<pre>
+curl --location 'https://<b><i>{BaseURL}</b></i>/Keyfactorapi/JobTypes/Custom' \
 --header 'X-Keyfactor-Requested-With: APIClient' \
 --header 'x-keyfactor-api-version: 1.0' \
 --header 'Content-Type: application/json' \
---header 'Authorization: Basic ***{Base64 encoded credentials}***' \
+--header 'Authorization: Basic <b><i>{Base64 encoded credentials}</b></i>' \
 --data '{
   "JobTypeName": "SampleCustomJobType",
   "Description": "Sample Custom JobType",
@@ -61,7 +61,7 @@ curl --location 'https://***{BaseURL}***/Keyfactorapi/JobTypes/Custom' \
     }
   ]
 }'
-````
+</pre>
 
 #### 2 - Install the `Sample Custom Job Type` and register it on Keyfactor Command
 Follow the following steps to install and register the `Sample Custom Job Type` custom extension:
@@ -73,13 +73,13 @@ Follow the following steps to install and register the `Sample Custom Job Type` 
 
 
 #### 3 - Retrieve the applicable Agent ID by calling the `[GET] /Agents` endpoint (necessary for step 4)
-````
-curl --location 'https://***{BaseURL}***/Keyfactorapi/Agents' \
+<pre>
+curl --location 'https://<b><i>{BaseURL}</b></i>/Keyfactorapi/Agents' \
 --header 'X-Keyfactor-Requested-With: APIClient' \
 --header 'x-keyfactor-api-version: 1.0' \
---header 'Authorization: Basic ***{Base64 encoded credentials}***' \
+--header 'Authorization: Basic <b><i>{Base64 encoded credentials}</b></i>' \
 --data ''
-````
+</pre>
 
 In the response, find the agent (orchestrator) you installed the custom job type extension on, and make note of the corresponding `AgentId`.  You will need this for step 4.
 
@@ -90,9 +90,9 @@ curl --location 'https://<b><i>{BaseURL}</b></i>/Keyfactorapi/OrchestratorJobs/C
 --header 'X-Keyfactor-Requested-With: APIClient' \
 --header 'x-keyfactor-api-version: 1.0' \
 --header 'Content-Type: application/json' \
---header 'Authorization: Basic ***{Base64 encoded credentials}***' \
+--header 'Authorization: Basic <b><i>{Base64 encoded credentials}</b></i>' \
 --data '{
-  "AgentId": "***{AgentId from step 3}***",
+  "AgentId": "<b><i>{AgentId from step 3}</b></i>",
   "JobTypeName": "SampleCustomJobType",
   "Schedule": {
     "Immediate": true
@@ -112,10 +112,14 @@ curl --location 'https://<b><i>{BaseURL}</b></i>/Keyfactorapi/OrchestratorJobs/C
 
 
  #### 5 - Retrieve the data passed back from the `Sample Custom Job Type` job
- ````
- curl --location 'https://***{BaseURL}***/Keyfactorapi/OrchestratorJobs/JobStatus/Data?jobHistoryId=124163' \
+ <pre>
+ curl --location 'https://<b><i>{BaseURL}</b></i>/Keyfactorapi/OrchestratorJobs/JobStatus/Data?jobHistoryId=<b><i>{job history id from job run in step 4}</b></i>' \
 --header 'X-Keyfactor-Requested-With: APIClient' \
 --header 'x-keyfactor-api-version: 1.0' \
---header 'Authorization: Basic Y29tbWFuZFxrZmFkbWluOkF0bEBudDFz' \
+--header 'Authorization: Basic <b><i>{Base64 encoded credentials}</b></i>' \
 --data ''
-````
+</pre>
+
+This call will retrieve the concatenated parameter values passed back from the executed job in step 4 back to the Keyfactor Command database.  Passing contextualized data back from the job to Command can be useful in a case where further processing needs to occur after the job completed based on the results of the job.  a [completion handler](https://github.com/Keyfactor/keyfactor-sample-jobcompletionhandler) would be an example of such a use case.
+
+The `JobHistoryId` needed to execute this API endpoint can be retrieved from the orchestrator log itself.  The `Sample Custom Job Type` extension writes the job history id to the orchestrator log prefixed by `***** Job History ID`.  If you search for this string in the log, you will find the relevant numeric `Job History Id`.
