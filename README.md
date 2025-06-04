@@ -68,7 +68,7 @@ Follow these steps to install and register the `Sample Custom Job Type` custom e
 - Stop the Keyfactor Universal Orchestrator service on the Universal Orchestrator server on which you plan on installing this extension
 - Download the latest release (either .net8 or .net6, whichever is applicable to your environment) of this sample custom job type extension, and copy the contents into {Keyfactor Unviversal Orchestartor installation path}/extensions/{folder name you create}.
 - Restart the Universal Orchestrator service
-- In Keyfactor Command, navigate to `Orchestrators => Management`.  You should see the Status of the Universal Orchestrator you are attempting to install the extension on changed to "New".  You should also see a new `SampleCustomJobType` capability appear under Capabilities.
+- In Keyfactor Command, navigate to `Orchestrators => Management`.  You should see the status of the Universal Orchestrator you are attempting to install the extension on changed to "New".  You should also see a new `SampleCustomJobType` capability appear under Capabilities.
 - Click on the target orchestrator, and click the `Approve` button.  The orchestrator status should now appear as "Approved".
 
 #### 3 - Retrieve the applicable Agent ID by calling the `[GET] /Agents` endpoint (necessary for step 4)
@@ -82,7 +82,7 @@ curl --location 'https://<b><i>{BaseURL}</b></i>/Keyfactorapi/Agents' \
 
 In the response, find the agent (orchestrator) you installed the custom job type extension on, and make note of the corresponding `AgentId`.  You will need this for step 4.
 
-#### 4 - Schedule a job for your `Sample Custom Job Type` extension
+#### 4 - Schedule a job for your `Sample Custom JobType` extension
 <pre>
 curl --location 'https://<b><i>{BaseURL}</b></i>/Keyfactorapi/OrchestratorJobs/Custom' \
 --header 'X-Keyfactor-Requested-With: APIClient' \
@@ -104,11 +104,11 @@ curl --location 'https://<b><i>{BaseURL}</b></i>/Keyfactorapi/OrchestratorJobs/C
 }'
 </pre>
 
-Modify the JobField values above as desired.  These will be the inputs into your scheduled job.  The example above schedules the job to run immediately, but this can be altered to run at various intervals.  Please reference the Keyfactor Command API documentation for more details.
+Modify the JobField values above as desired.  These will be the inputs into your scheduled job.  The API call above schedules the job to run immediately, but this can be altered to run at various intervals.  Please reference the Keyfactor Command API documentation for more details.
 
-Once the job is scheduled, you can navigate in Keyfactor Command to `Orchestrators => Jobs` to view the status of the job.  Once it runs, you should be able to see the 4 values you passed in the Orchestrator log located on the Keyfactor Universal Orchestrator server at `{UO installation path}/logs/Log.txt`.  Also, the passed in values will be persisted in the Keyfactor Command database, accessible via the API call in step 5.
+Once the job is scheduled, you can navigate in Keyfactor Command to `Orchestrators => Jobs` to view the status of the job.  Once it runs, you should be able to see the 4 values you passed in as input appear in the Orchestrator log located on the Keyfactor Universal Orchestrator server at `{UO installation path}/logs/Log.txt`.  Also, the passed in values will be persisted in the Keyfactor Command database, accessible via the API call in step 5.
 
-#### 5 - Retrieve the data passed back from the `Sample Custom Job Type` job
+#### 5 - Retrieve the data passed back from the `Sample Custom JobType` job
 <pre>
 curl --location 'https://<b><i>{BaseURL}</b></i>/Keyfactorapi/OrchestratorJobs/JobStatus/Data?jobHistoryId=<b><i>{job history id from job run in step 4}</b></i>' \
 --header 'X-Keyfactor-Requested-With: APIClient' \
@@ -117,14 +117,14 @@ curl --location 'https://<b><i>{BaseURL}</b></i>/Keyfactorapi/OrchestratorJobs/J
 --data ''
 </pre>
 
-This call will retrieve the concatenated parameter values passed back from the executed job in step 4 back to the Keyfactor Command database.  Passing contextualized data back from the job to Command can be useful in a case where further processing needs to occur after the job completed based on the results of the job.  a [completion handler](https://github.com/Keyfactor/keyfactor-sample-jobcompletionhandler) would be an example of such a use case.
+This call will retrieve the concatenated parameter values passed back from the executed job in step 4 and persisted in the Keyfactor Command database.  Passing contextualized data back from the job to Command can be useful in a case where further processing needs to occur after the job completed based on the results of the job.  A [completion handler](https://github.com/Keyfactor/keyfactor-sample-jobcompletionhandler) would be an example of such a use case.
 
-The `JobHistoryId` needed to execute this API endpoint can be retrieved from the orchestrator log itself.  The `Sample Custom Job Type` extension writes the job history id to the orchestrator log prefixed by `***** Job History ID`.  If you search for this string in the log, you will find the relevant numeric `Job History Id`.
+The `JobHistoryId` needed to execute this API endpoint can be retrieved from the orchestrator log itself.  The `Sample Custom JobType` extension writes the job history id to the orchestrator log prefixed by `***** Job History ID`.  If you search for this string in the log, you will find the relevant numeric `Job History Id`.
 
 
 ## Understanding the Sample
 
-As stated previously, this sample performs the basic task of logging the data passed into it and then sending that data (in concatenated string form) back to Keyfactor Command for persistence.  It consists of one code file, SampleCustomJob.cs, which is commented with numbered comments.  Those numbers correspond to the notes below.
+As stated previously, this sample performs the basic task of logging the data passed into it and then sending that data (in concatenated string form) back to Keyfactor Command to be persisted.  It consists of one code file, SampleCustomJob.cs, which is commented with numbered comments.  Those numbers correspond to the notes below.
 
 1. NuGet packages Keyfactor.Orchestrators.IOrchestratorJobExtensions and Keyfactor.Logging are necessary for this sample along with all other Custom Job Type extensions.  The package source for these packages is `https://nuget.pkg.github.com/Keyfactor/index.json` residing on GitHub's package server within the Keyfactor organization.
 2. See #1
