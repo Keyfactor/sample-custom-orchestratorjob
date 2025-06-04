@@ -71,7 +71,6 @@ Follow the following steps to install and register the `Sample Custom Job Type` 
 - In Keyfactor Command, navigate to ``Orchestrators => Management`.  You should see the Status of the Universal Orchestrator you are attempting to install the extension on changed to "New".  You should also see a new `SampleCustomJobType` capability appear under Capabilities.
 - Click on the target orchestrator, and click the `Approve` button.  The orchestrator status should now appear as "Approved".
 
-
 #### 3 - Retrieve the applicable Agent ID by calling the `[GET] /Agents` endpoint (necessary for step 4)
 <pre>
 curl --location 'https://<b><i>{BaseURL}</b></i>/Keyfactorapi/Agents' \
@@ -82,7 +81,6 @@ curl --location 'https://<b><i>{BaseURL}</b></i>/Keyfactorapi/Agents' \
 </pre>
 
 In the response, find the agent (orchestrator) you installed the custom job type extension on, and make note of the corresponding `AgentId`.  You will need this for step 4.
-
 
 #### 4 - Schedule a job for your `Sample Custom Job Type` extension
 <pre>
@@ -106,14 +104,13 @@ curl --location 'https://<b><i>{BaseURL}</b></i>/Keyfactorapi/OrchestratorJobs/C
 }'
 </pre>
 
- Modify the JobField values above as desired.  These will be the inputs into your scheduled job.  The example above schedules the job to run immediately, but this can be altered to run at various intervals.  Please reference the Keyfactor Command API documentation for more details.
+Modify the JobField values above as desired.  These will be the inputs into your scheduled job.  The example above schedules the job to run immediately, but this can be altered to run at various intervals.  Please reference the Keyfactor Command API documentation for more details.
 
- Once the job is scheduled, you can navigate in Keyfactor Command to `Orchestrators => Jobs` to view the status of the job.  Once it runs, you should be able to see the 4 values you passed in the Orchestrator log located on the Keyfactor Universal Orchestrator server at `{UO installation path}/logs/log.txt`.  Also, the passed in values will be persisted in the Keyfactor Command database, accessible via the API call in step 5.
+Once the job is scheduled, you can navigate in Keyfactor Command to `Orchestrators => Jobs` to view the status of the job.  Once it runs, you should be able to see the 4 values you passed in the Orchestrator log located on the Keyfactor Universal Orchestrator server at `{UO installation path}/logs/Log.txt`.  Also, the passed in values will be persisted in the Keyfactor Command database, accessible via the API call in step 5.
 
-
- #### 5 - Retrieve the data passed back from the `Sample Custom Job Type` job
- <pre>
- curl --location 'https://<b><i>{BaseURL}</b></i>/Keyfactorapi/OrchestratorJobs/JobStatus/Data?jobHistoryId=<b><i>{job history id from job run in step 4}</b></i>' \
+#### 5 - Retrieve the data passed back from the `Sample Custom Job Type` job
+<pre>
+curl --location 'https://<b><i>{BaseURL}</b></i>/Keyfactorapi/OrchestratorJobs/JobStatus/Data?jobHistoryId=<b><i>{job history id from job run in step 4}</b></i>' \
 --header 'X-Keyfactor-Requested-With: APIClient' \
 --header 'x-keyfactor-api-version: 1.0' \
 --header 'Authorization: Basic <b><i>{Base64 encoded credentials}</b></i>' \
@@ -123,3 +120,17 @@ curl --location 'https://<b><i>{BaseURL}</b></i>/Keyfactorapi/OrchestratorJobs/C
 This call will retrieve the concatenated parameter values passed back from the executed job in step 4 back to the Keyfactor Command database.  Passing contextualized data back from the job to Command can be useful in a case where further processing needs to occur after the job completed based on the results of the job.  a [completion handler](https://github.com/Keyfactor/keyfactor-sample-jobcompletionhandler) would be an example of such a use case.
 
 The `JobHistoryId` needed to execute this API endpoint can be retrieved from the orchestrator log itself.  The `Sample Custom Job Type` extension writes the job history id to the orchestrator log prefixed by `***** Job History ID`.  If you search for this string in the log, you will find the relevant numeric `Job History Id`.
+
+
+## Understanding the Sample
+
+As stated previously, this sample performs the basic task of logging the data passed into it and then sending that data (in concatenated string form) back to Keyfactor Command for persistence.  It consists of one code file, SampleCustomJob.cs, which is commented with numbered comments.  Those numbers correspond to the notes below.
+
+1. NuGet packages Keyfactor.Orchestrators.IOrchestratorJobExtensions and Keyfactor.Logging are necessary for this sample along with all other Custom Job Type extensions.  The package source for these packages is `https://nuget.pkg.github.com/Keyfactor/index.json` residing on GitHub's package server within the Keyfactor organization.
+2. See #1
+3. All Custom Job Type extensions will implement the Keyfactor.Orchestrator.Extensions.ICustomJobExtension interface.  This interface contains one method that needs to be implemented - `ProcessJob(JobConfiguration config, SubmitCustomUpdate submitCustomUpdate)`.
+4. The ExtensionName property needs to be implemented as well, but the value can be left blank.
+5. The ProcessJob method is the one method from ICustomJobExtension that needs to be implemented.  ProcessJob has 2 arguments - JobConfiguration and SubmitCustomUpdate.  JobConfiguration contains all input information about the job, including and most importantly, the 4 input parameter values passed into the job.  SubmitCustomUpdate contains an `Invoke` method that allows a string value to be passed back to Keyfactor Command and persisted.  This method is where the business logic of your custom job type extension will reside.
+6. This section retrieves the 4 parameter values from the JobProperties Dictionary passed into the job from the API call in step 4 above.
+7. The 4 passed parameter values are written to the orchestrator log found at `{Keyfactor Universal Orchestrator installation folder}/logs/Log.txt`.  Job then reports back "Success" to Keyfactor Command.
+8. Error handling logic as well as reporting back "Failure" to Keyfactor Command.
