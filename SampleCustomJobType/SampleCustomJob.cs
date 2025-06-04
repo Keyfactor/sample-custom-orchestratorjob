@@ -37,6 +37,7 @@ namespace Keyfactor.Extensions.Orchestrator.SampleCustomJobType
                 DateTime paramDate = Convert.ToDateTime(config.JobProperties["ParamDate"]);
                 bool paramBool = Convert.ToBoolean(config.JobProperties["ParamBool"]);
 
+                _logger.LogInformation($"***** Job History ID: {config.JobHistoryId} *****");
                 _logger.LogInformation($"ParamString: {paramString}");
                 _logger.LogInformation($"ParamInt: {paramInt.ToString()}");
                 _logger.LogInformation($"ParamDate: {paramDate.ToString()}");
