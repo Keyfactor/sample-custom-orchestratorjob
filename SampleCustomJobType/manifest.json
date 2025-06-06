@@ -1,0 +1,10 @@
+{
+  "extensions": {
+    "Keyfactor.Orchestrators.Extensions.IOrchestratorJobExtension": {
+      "Custom.SampleCustomJobType": {
+        "assemblypath": "SampleCustomJobType.dll",
+        "TypeFullName": "Keyfactor.Extensions.Orchestrator.SampleCustomJobType.SampleCustomJob"
+      }
+    }
+  }
+}
